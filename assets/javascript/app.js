@@ -41,3 +41,39 @@ function updateHTML() {
 		}
 	}
 }
+
+$( function() {
+
+	var database = firebase.database();
+	database.ref().on("child_added", function(snapshot) {
+		var tr = $("<tr>");
+		for( var i = 0; i < col_names.length; i++ ) {
+			var td = $("<td>");
+			td.attr( "data-col_name", col_names[i] );
+			tr.append(td);
+		}
+		tr.attr( "data-train_name", snapshot.val().train_name );
+		$("#train-schedule tbody").append(tr);
+
+		entries.push( snapshot.val() );
+
+		updateHTML();
+	});
+
+	$("#addTrain-form").on("submit", function(event) {
+		event.preventDefault();
+
+		var name = $("#addTrain-form [name='name']").val();
+		var dest = $("#addTrain-form [name='dest']").val();
+		var initTime = $("#addTrain-form [name='initTime']").val();
+		var freq = $("#addTrain-form [name='freq']").val();
+
+		database.ref().push({
+			train_name: name,
+			destination: dest,
+			initial_time: initTime,
+			frequency: freq
+		});
+	});
+
+} );
